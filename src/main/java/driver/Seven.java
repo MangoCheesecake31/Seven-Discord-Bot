@@ -10,7 +10,7 @@ import javax.security.auth.login.LoginException;
 
 public class Seven {
     public static JDA jda;
-    public static final String BOT_PREFIX = "-";
+    public static final String BOT_PREFIX = Config.get("DEFAULT_PREFIX");
 
     public static void main(String[] args) throws LoginException {
         // Build Bot
