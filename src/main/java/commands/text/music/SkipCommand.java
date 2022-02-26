@@ -9,6 +9,7 @@ import lavaplayer.GuildMusicManager;
 import lavaplayer.PlayerManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 
@@ -32,19 +33,20 @@ public class SkipCommand implements TextCommand {
         GuildVoiceState selfVoiceState = context.getEvent().getGuild().getSelfMember().getVoiceState();
         GuildVoiceState memberVoiceState = context.getEvent().getMember().getVoiceState();
         MessageChannel messageChannel = context.getEvent().getChannel();
+        Message message = context.getEvent().getMessage();
         User user = context.getEvent().getAuthor();
 
         // Check if User is in Voice Channel
         if (!memberVoiceState.inAudioChannel()) {
             messageChannel.sendTyping().queue();
-            messageChannel.sendMessage("You need to be in a voice channel!").queue();
+            message.reply("You need to be in a Voice Channel!").queue();
             return;
         }
 
         // Check if the User and the Bot are in the same Voice Channel
         if (!memberVoiceState.getChannel().equals(selfVoiceState.getChannel())) {
             messageChannel.sendTyping().queue();
-            messageChannel.sendMessage("You need to be in the same voice channel!").queue();
+            message.reply("You need to be in the same Voice Channel!").queue();
             return;
         }
 
@@ -56,7 +58,10 @@ public class SkipCommand implements TextCommand {
         // Check if there is track playing
         if (playingTrack == null) {
             messageChannel.sendTyping().queue();
-            messageChannel.sendMessage("There is no track currently playing!").queue();
+            EmbedBuilder eb = new EmbedBuilder()
+                    .setTitle("There is no track currently playing.")
+                    .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)));
+            messageChannel.sendMessageEmbeds(eb.build()).queue();
             return;
         }
 

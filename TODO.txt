@@ -1,0 +1,4 @@
+
+
+
+> Create better error messages for text seek command

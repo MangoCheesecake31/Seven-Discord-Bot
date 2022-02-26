@@ -2,14 +2,13 @@ package commands.text.music;
 
 import commands.text.TextCommand;
 import commands.text.TextCommandContext;
+import helpers.Helper;
 import lavaplayer.PlayerManager;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,7 +55,7 @@ public class PlayCommand implements TextCommand {
         String link = String.join(" ", String.join(" ", context.getArgs()));
 
         // Validate URL
-        if (!isUrl(link)) {
+        if (!Helper.isUrl(link)) {
             link = "ytsearch:" + link;
         }
 
@@ -72,14 +71,5 @@ public class PlayCommand implements TextCommand {
     @Override
     public List<String> getAliases() {
         return this.aliases;
-    }
-
-    private boolean isUrl(String link) {
-        try {
-            new URL(link);
-            return true;
-        } catch (MalformedURLException e) {
-            return false;
-        }
     }
 }

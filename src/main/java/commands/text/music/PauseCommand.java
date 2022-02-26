@@ -1,11 +1,9 @@
 package commands.text.music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import commands.text.TextCommand;
 import commands.text.TextCommandContext;
 import driver.Config;
-import helpers.Helper;
 import lavaplayer.GuildMusicManager;
 import lavaplayer.PlayerManager;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -16,16 +14,14 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-public class NowPlayingCommand implements TextCommand {
+public class PauseCommand implements TextCommand {
     private String name;
     private ArrayList<String> aliases;
 
-    public NowPlayingCommand() {
-        this.name = "nowplaying";
+    public PauseCommand() {
+        this.name = "pause";
         this.aliases = new ArrayList<>();
-        this.aliases.add("np");
     }
 
     @Override
@@ -49,30 +45,25 @@ public class NowPlayingCommand implements TextCommand {
             return;
         }
 
-        // Get current audio track
+        // Get AudioPlayer
         GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(context.getEvent().getGuild());
         AudioPlayer audioPlayer = musicManager.player;
-        AudioTrack playingTrack = audioPlayer.getPlayingTrack();
-
-        // Check if the track is playing
-        if (playingTrack == null) {
-            messageChannel.sendTyping().queue();
-            message.reply("There is no track playing!").queue();
-            return;
-        }
 
         // Reply
         messageChannel.sendTyping().queue();
 
-        // Compute Time
-        String currentPosition = Helper.formatSongDuration(playingTrack.getPosition());
-        String fullPosition = Helper.formatSongDuration(playingTrack.getDuration());
+        String title;
+        if (audioPlayer.isPaused()) {
+            audioPlayer.setPaused(false);
+            title = "The current song has been unpaused.";
+        } else {
+            audioPlayer.setPaused(true);
+            title = "The current song has been paused";
+        }
 
         EmbedBuilder eb = new EmbedBuilder()
-                .setTitle("Now Playing", playingTrack.getInfo().uri)
-                .setDescription("**Track**: " + playingTrack.getInfo().author + " - " + playingTrack.getInfo().title)
-                .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)))
-                .setFooter(currentPosition + " / " + fullPosition);
+                .setTitle(title)
+                .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)));
         messageChannel.sendMessageEmbeds(eb.build()).queue();
     }
 

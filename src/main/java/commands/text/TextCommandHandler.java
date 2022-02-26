@@ -3,10 +3,7 @@ package commands.text;
 import commands.text.general.HelpCommand;
 import commands.text.general.InfoCommand;
 import commands.text.general.PingCommand;
-import commands.text.music.NowPlayingCommand;
-import commands.text.music.PlayCommand;
-import commands.text.music.SkipCommand;
-import commands.text.music.StopCommand;
+import commands.text.music.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.HashMap;
@@ -30,6 +27,8 @@ public class TextCommandHandler  {
         this.addTextCommand(new StopCommand());
         this.addTextCommand(new SkipCommand());
         this.addTextCommand(new NowPlayingCommand());
+        this.addTextCommand(new PauseCommand());
+        this.addTextCommand(new SeekCommand());
     }
 
     private void addTextCommand(TextCommand newCommand) {
