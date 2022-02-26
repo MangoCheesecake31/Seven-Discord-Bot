@@ -1,13 +1,18 @@
 package commands.text.music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import commands.text.TextCommand;
 import commands.text.TextCommandContext;
+import driver.Config;
 import lavaplayer.GuildMusicManager;
 import lavaplayer.PlayerManager;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.User;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,10 +28,11 @@ public class SkipCommand implements TextCommand {
 
     @Override
     public void handle(TextCommandContext context) {
-        // Retrive variables
+        // Retrieve variables
         GuildVoiceState selfVoiceState = context.getEvent().getGuild().getSelfMember().getVoiceState();
         GuildVoiceState memberVoiceState = context.getEvent().getMember().getVoiceState();
         MessageChannel messageChannel = context.getEvent().getChannel();
+        User user = context.getEvent().getAuthor();
 
         // Check if User is in Voice Channel
         if (!memberVoiceState.inAudioChannel()) {
@@ -42,11 +48,13 @@ public class SkipCommand implements TextCommand {
             return;
         }
 
+        // Get current audio track
         GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(context.getEvent().getGuild());
         AudioPlayer audioPlayer = musicManager.player;
+        AudioTrack playingTrack = audioPlayer.getPlayingTrack();
 
         // Check if there is track playing
-        if (audioPlayer.getPlayingTrack() == null) {
+        if (playingTrack == null) {
             messageChannel.sendTyping().queue();
             messageChannel.sendMessage("There is no track currently playing!").queue();
             return;
@@ -54,8 +62,6 @@ public class SkipCommand implements TextCommand {
 
         // Skip Track
         musicManager.scheduler.nextTrack();
-        messageChannel.sendTyping().queue();
-        messageChannel.sendMessage("Skipped track!").queue();
     }
 
     @Override

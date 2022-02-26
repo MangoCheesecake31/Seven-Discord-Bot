@@ -7,6 +7,7 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import driver.Config;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -44,7 +45,7 @@ public class PlayerManager {
             @Override
             public void trackLoaded(AudioTrack track) {
                 // Queue Track
-                musicManager.scheduler.queueTrack(track);
+                musicManager.scheduler.queueTrack(track, channel);
 
                 // Reply
                 channel.sendTyping().queue();
@@ -52,7 +53,7 @@ public class PlayerManager {
                 EmbedBuilder eb = new EmbedBuilder()
                         .setTitle("Queued", track.getInfo().uri)
                         .setDescription("**Track**: " + track.getInfo().author + " - " + track.getInfo().title)
-                        .setColor(new Color(16777215))
+                        .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)))
                         .setFooter(author.getName(), author.getAvatarUrl());
                 channel.sendMessageEmbeds(eb.build()).queue();
             }
@@ -64,7 +65,7 @@ public class PlayerManager {
                 if (playlist.isSearchResult()) {
                     // Queue Top Track from Query Result
                     AudioTrack track = tracks.get(0);
-                    musicManager.scheduler.queueTrack(track);
+                    musicManager.scheduler.queueTrack(track, channel);
 
                     // Reply
                     channel.sendTyping().queue();
@@ -72,13 +73,13 @@ public class PlayerManager {
                     EmbedBuilder eb = new EmbedBuilder()
                             .setTitle("Queued", track.getInfo().uri)
                             .setDescription("**Track**: " + track.getInfo().author + " - " + track.getInfo().title)
-                            .setColor(new Color(16777215))
+                            .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)))
                             .setFooter(author.getName(), author.getAvatarUrl());
                     channel.sendMessageEmbeds(eb.build()).queue();
                 } else {
                     // Queue Entire Track Playlist
                     for (AudioTrack track: tracks) {
-                        musicManager.scheduler.queueTrack(track);
+                        musicManager.scheduler.queueTrack(track, channel);
                     }
 
                     // Reply
@@ -87,7 +88,7 @@ public class PlayerManager {
                     EmbedBuilder eb = new EmbedBuilder()
                             .setTitle("Queued")
                             .setDescription("**Playlist**: " + playlist.getName())
-                            .setColor(new Color(16777215))
+                            .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)))
                             .setFooter(author.getName(), author.getAvatarUrl());
                     channel.sendMessageEmbeds(eb.build()).queue();
                 }
@@ -104,7 +105,6 @@ public class PlayerManager {
             }
         });
     }
-
 
     public static PlayerManager getInstance() {
         if (INSTANCE == null) {
