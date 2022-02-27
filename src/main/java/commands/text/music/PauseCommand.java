@@ -4,6 +4,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import commands.text.TextCommand;
 import commands.text.TextCommandContext;
 import driver.Config;
+import helpers.Helper;
 import lavaplayer.GuildMusicManager;
 import lavaplayer.PlayerManager;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -61,9 +62,7 @@ public class PauseCommand implements TextCommand {
             title = "The current song has been paused";
         }
 
-        EmbedBuilder eb = new EmbedBuilder()
-                .setTitle(title)
-                .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)));
+        EmbedBuilder eb = Helper.generateSimpleEmbed(title, "");
         messageChannel.sendMessageEmbeds(eb.build()).queue();
     }
 

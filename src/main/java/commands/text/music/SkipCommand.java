@@ -4,7 +4,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import commands.text.TextCommand;
 import commands.text.TextCommandContext;
-import driver.Config;
+import helpers.Helper;
 import lavaplayer.GuildMusicManager;
 import lavaplayer.PlayerManager;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -13,7 +13,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,9 +57,8 @@ public class SkipCommand implements TextCommand {
         // Check if there is track playing
         if (playingTrack == null) {
             messageChannel.sendTyping().queue();
-            EmbedBuilder eb = new EmbedBuilder()
-                    .setTitle("There is no track currently playing.")
-                    .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)));
+
+            EmbedBuilder eb = Helper.generateSimpleEmbed("There is no track currently playing.", "");
             messageChannel.sendMessageEmbeds(eb.build()).queue();
             return;
         }

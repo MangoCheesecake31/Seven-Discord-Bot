@@ -13,10 +13,8 @@ import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class NowPlayingCommand implements TextCommand {
     private String name;
@@ -64,15 +62,7 @@ public class NowPlayingCommand implements TextCommand {
         // Reply
         messageChannel.sendTyping().queue();
 
-        // Compute Time
-        String currentPosition = Helper.formatSongDuration(playingTrack.getPosition());
-        String fullPosition = Helper.formatSongDuration(playingTrack.getDuration());
-
-        EmbedBuilder eb = new EmbedBuilder()
-                .setTitle("Now Playing", playingTrack.getInfo().uri)
-                .setDescription("**Track**: " + playingTrack.getInfo().author + " - " + playingTrack.getInfo().title)
-                .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)))
-                .setFooter(currentPosition + " / " + fullPosition);
+        EmbedBuilder eb = Helper.generateNowPlayingEmbed(playingTrack, true);
         messageChannel.sendMessageEmbeds(eb.build()).queue();
     }
 

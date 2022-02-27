@@ -29,6 +29,7 @@ public class TextCommandHandler  {
         this.addTextCommand(new NowPlayingCommand());
         this.addTextCommand(new PauseCommand());
         this.addTextCommand(new SeekCommand());
+        this.addTextCommand(new QueueCommand());
     }
 
     private void addTextCommand(TextCommand newCommand) {

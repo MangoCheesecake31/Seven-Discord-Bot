@@ -3,7 +3,6 @@ package commands.text.music;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import commands.text.TextCommand;
 import commands.text.TextCommandContext;
-import driver.Config;
 import helpers.Helper;
 import lavaplayer.GuildMusicManager;
 import lavaplayer.PlayerManager;
@@ -12,7 +11,6 @@ import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,23 +53,18 @@ public class SeekCommand implements TextCommand {
             // Reply Error
             messageChannel.sendTyping().queue();
 
-            EmbedBuilder eb = new EmbedBuilder()
-                    .setTitle("Missing Argument")
-                    .setDescription("Syntax: seek <seconds>.")
-                    .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)));
+            EmbedBuilder eb = Helper.generateSimpleEmbed("Missing Argument", "Syntax: seek <seconds>.");
             messageChannel.sendMessageEmbeds(eb.build()).queue();
             return;
         }
 
         // Check if arguments are valid
         long milliseconds;
-        if (!Helper.isNumber(context.getArgs()[0])) {
+        if (!Helper.isNumber(args[0])) {
             // Reply Error
             messageChannel.sendTyping().queue();
 
-            EmbedBuilder eb = new EmbedBuilder()
-                    .setTitle(String.format("Invalid arguments -> %s", context.getArgs()[0]))
-                    .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)));
+            EmbedBuilder eb = Helper.generateSimpleEmbed("Invalid Argument", "Error: Argument provided must be a whole number.");
             messageChannel.sendMessageEmbeds(eb.build()).queue();
             return;
         }
@@ -89,19 +82,13 @@ public class SeekCommand implements TextCommand {
             // Reply
             messageChannel.sendTyping().queue();
 
-            EmbedBuilder eb = new EmbedBuilder()
-                    .setTitle("Seeking")
-                    .setDescription(String.format("Track sought to %s", Helper.formatSongDuration(milliseconds)))
-                    .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)));
+            EmbedBuilder eb = Helper.generateSimpleEmbed("Seeking", String.format("Track sought to %s", Helper.formatSongDuration(milliseconds)));
             messageChannel.sendMessageEmbeds(eb.build()).queue();
         } else {
             // Reply Error
             messageChannel.sendTyping().queue();
 
-            EmbedBuilder eb = new EmbedBuilder()
-                    .setTitle("Argument Out of Bounds")
-                    .setDescription("Error: Argument provided exceeds the current song duration.")
-                    .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)));
+            EmbedBuilder eb = Helper.generateSimpleEmbed("Argument Out of Bounds", "Error: Argument provided exceeds the current song duration.");
             messageChannel.sendMessageEmbeds(eb.build()).queue();
         }
     }

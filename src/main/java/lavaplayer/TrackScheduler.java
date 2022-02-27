@@ -5,6 +5,7 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import driver.Config;
+import helpers.Helper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -43,10 +44,7 @@ public class TrackScheduler extends AudioEventAdapter {
         // Reply
         this.latestChannel.sendTyping().queue();
 
-        EmbedBuilder eb = new EmbedBuilder()
-                .setTitle("Now Playing", nextTrack.getInfo().uri)
-                .setDescription("**Track**: " + nextTrack.getInfo().author + " - " + nextTrack.getInfo().title)
-                .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)));
+        EmbedBuilder eb = Helper.generateNowPlayingEmbed(nextTrack, false);
         this.latestChannel.sendMessageEmbeds(eb.build()).queue();
     }
 

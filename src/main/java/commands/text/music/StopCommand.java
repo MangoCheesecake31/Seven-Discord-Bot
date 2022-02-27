@@ -3,6 +3,7 @@ package commands.text.music;
 import commands.text.TextCommand;
 import commands.text.TextCommandContext;
 import driver.Config;
+import helpers.Helper;
 import lavaplayer.GuildMusicManager;
 import lavaplayer.PlayerManager;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -58,7 +59,9 @@ public class StopCommand implements TextCommand {
 
         // Reply
         messageChannel.sendTyping().queue();
-        context.getEvent().getMessage().reply("Disconnected from Voice Channel!").queue();
+
+        EmbedBuilder eb = Helper.generateSimpleEmbed("Disconnected from Voice Channel!", "");
+        message.replyEmbeds(eb.build()).queue();
     }
 
     @Override
