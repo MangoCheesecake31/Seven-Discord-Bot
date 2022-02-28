@@ -28,24 +28,12 @@ public class SkipCommand implements TextCommand {
 
     @Override
     public void handle(TextCommandContext context) {
+
         // Retrieve variables
-        GuildVoiceState selfVoiceState = context.getEvent().getGuild().getSelfMember().getVoiceState();
-        GuildVoiceState memberVoiceState = context.getEvent().getMember().getVoiceState();
         MessageChannel messageChannel = context.getEvent().getChannel();
-        Message message = context.getEvent().getMessage();
-        User user = context.getEvent().getAuthor();
 
-        // Check if User is in Voice Channel
-        if (!memberVoiceState.inAudioChannel()) {
-            messageChannel.sendTyping().queue();
-            message.reply("You need to be in a Voice Channel!").queue();
-            return;
-        }
-
-        // Check if the User and the Bot are in the same Voice Channel
-        if (!memberVoiceState.getChannel().equals(selfVoiceState.getChannel())) {
-            messageChannel.sendTyping().queue();
-            message.reply("You need to be in the same Voice Channel!").queue();
+        // Validate Voice States
+        if (!Helper.validateUserMusicVoiceState(context, false)) {
             return;
         }
 

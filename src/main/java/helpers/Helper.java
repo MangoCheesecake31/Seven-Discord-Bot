@@ -1,9 +1,13 @@
 package helpers;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
+import commands.text.TextCommandContext;
 import driver.Config;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.GuildVoiceState;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.managers.AudioManager;
 
 import java.awt.*;
 import java.net.MalformedURLException;
@@ -11,6 +15,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+
 
 public class Helper {
     public static String formatSongDuration(long time) {
@@ -62,13 +67,16 @@ public class Helper {
         int queueSize = trackList.size();
         int startIndex = page * 20;
         int endIndex = startIndex  + 20;
+        int totalPages = (int) Math.ceil(queue.size() * 1.0 / 20);
 
         String list = "";
-        for (int i = startIndex; i < queueSize && i < endIndex; i++) {
+        int i;
+        for (i = startIndex; i < queueSize && i < endIndex; i++) {
             AudioTrack track = trackList.get(i);
-            list += String.format("%d | %s - %s [%9s]\n", i, track.getInfo().author, track.getInfo().title, Helper.formatSongDuration(track.getDuration()));
+            list += String.format("%d. [%s - %s](%s) [%s]\n", i, track.getInfo().author, track.getInfo().title, track.getInfo().uri, Helper.formatSongDuration(track.getDuration()));
         }
         eb.setDescription(list);
+        eb.setFooter(String.format("Displaying tracks %d to %d of %d | Page %d/%d", startIndex, i, queueSize, page, totalPages - 1));
         return eb;
     }
 
@@ -102,5 +110,45 @@ public class Helper {
             eb.setFooter(currentPosition + " / " + fullPosition);
         }
         return eb;
+    }
+
+    /*
+        Validate user Voice States for Music Text Commands
+    */
+    public static boolean validateUserMusicVoiceState(TextCommandContext context, boolean isPlayCommand) {
+
+        // Retrieve variables
+        MessageChannel messageChannel = context.getEvent().getChannel();
+        Message message = context.getEvent().getMessage();
+
+        // Obtain Voice States of User & Bot
+        GuildVoiceState selfVoiceState = context.getEvent().getGuild().getSelfMember().getVoiceState();
+        GuildVoiceState memberVoiceState = context.getEvent().getMember().getVoiceState();
+
+        // Check if User is in Voice Channel
+        if (!memberVoiceState.inAudioChannel()) {
+            messageChannel.sendTyping().queue();
+
+            EmbedBuilder eb = Helper.generateSimpleEmbed("You need to be in a Voice Channel!", "");
+            message.replyEmbeds(eb.build()).queue();
+            return false;
+        }
+
+        // Connect Bot to User Voice Channel when needed
+        if (isPlayCommand && !selfVoiceState.inAudioChannel()) {
+            AudioManager audioManager = context.getEvent().getGuild().getAudioManager();
+            audioManager.openAudioConnection(memberVoiceState.getChannel());
+            selfVoiceState = memberVoiceState;
+        }
+
+        // Check if the User and the Bot are in the same Voice Channel
+        if (!memberVoiceState.getChannel().equals(selfVoiceState.getChannel())) {
+            messageChannel.sendTyping().queue();
+
+            EmbedBuilder eb = Helper.generateSimpleEmbed("You need to be in the same Voice Channel!", "");
+            message.replyEmbeds(eb.build()).queue();
+            return false;
+        }
+        return true;
     }
 }

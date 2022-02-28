@@ -20,6 +20,7 @@ public class TextCommandHandler  {
         this.commands = new HashMap<>();
         this.aliases = new HashMap<>();
 
+        // Populate Text Commands
         this.addTextCommand(new PingCommand());
         this.addTextCommand(new InfoCommand());
         this.addTextCommand(new HelpCommand());
@@ -30,6 +31,7 @@ public class TextCommandHandler  {
         this.addTextCommand(new PauseCommand());
         this.addTextCommand(new SeekCommand());
         this.addTextCommand(new QueueCommand());
+        this.addTextCommand(new VolumeCommand());
     }
 
     private void addTextCommand(TextCommand newCommand) {

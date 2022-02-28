@@ -24,30 +24,9 @@ public class PlayCommand implements TextCommand {
 
     @Override
     public void handle(TextCommandContext context) {
-        // Retrieve variables
-        GuildVoiceState selfVoiceState = context.getEvent().getGuild().getSelfMember().getVoiceState();
-        GuildVoiceState memberVoiceState = context.getEvent().getMember().getVoiceState();
-        MessageChannel messageChannel = context.getEvent().getChannel();
-        Message message = context.getEvent().getMessage();
 
-        // Check if User is in Voice Channel
-        if (!memberVoiceState.inAudioChannel()) {
-            messageChannel.sendTyping().queue();
-            message.reply("You need to be in a Voice Channel!").queue();
-            return;
-        }
-
-        // Connect Bot to User Voice Channel when needed
-        if (!selfVoiceState.inAudioChannel()) {
-            AudioManager audioManager = context.getEvent().getGuild().getAudioManager();
-            audioManager.openAudioConnection(memberVoiceState.getChannel());
-            selfVoiceState = memberVoiceState;
-        }
-
-        // Check if the User and the Bot are in the same Voice Channel
-        if (!memberVoiceState.getChannel().equals(selfVoiceState.getChannel())) {
-            messageChannel.sendTyping().queue();
-            message.reply("You need to be in the same Voice Channel!").queue();
+        // Validate Voice States
+        if (!Helper.validateUserMusicVoiceState(context, true)) {
             return;
         }
 
