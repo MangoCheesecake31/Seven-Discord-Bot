@@ -32,21 +32,22 @@ public class TextCommandHandler  {
         this.addTextCommand(new SeekCommand());
         this.addTextCommand(new QueueCommand());
         this.addTextCommand(new VolumeCommand());
+        this.addTextCommand(new RemoveCommand());
     }
 
     private void addTextCommand(TextCommand newCommand) {
         // Check command names and aliases
-        if (commands.get(newCommand.getName()) == null && aliases.get(newCommand.getName()) == null) {
+        if (this.commands.get(newCommand.getName()) == null && this.aliases.get(newCommand.getName()) == null) {
             for (String alias: newCommand.getAliases()) {
-                if (commands.get(alias) != null || aliases.get(alias) != null) {
+                if (this.commands.get(alias) != null || this.aliases.get(alias) != null) {
                     throw new IllegalArgumentException("A command with this name/alias already exist! [" + alias + "]");
                 }
             }
 
             // Add to Maps
-            commands.put(newCommand.getName(), newCommand);
+            this.commands.put(newCommand.getName(), newCommand);
             for (String alias: newCommand.getAliases()) {
-                aliases.put(alias, newCommand);
+                this.aliases.put(alias, newCommand);
             }
             return;
         }
@@ -54,9 +55,9 @@ public class TextCommandHandler  {
     }
 
     private TextCommand getCommand(String query) {
-        TextCommand invokedCommand =  commands.get(query);
+        TextCommand invokedCommand =  this.commands.get(query);
         if (invokedCommand == null) {
-            invokedCommand = aliases.get(query);
+            invokedCommand = this.aliases.get(query);
         }
         return invokedCommand;
     }

@@ -1,4 +1,5 @@
 
 
 
-> Create better error messages for text seek command
+> Skip Command: Add a feature that allows users to specify to skip a number of tracks
+> Remove Command: Add a feature that allows users to remove tracks on specific indexes and ranges;

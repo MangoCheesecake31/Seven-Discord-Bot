@@ -9,11 +9,10 @@ import helpers.Helper;
 import lavaplayer.GuildMusicManager;
 import lavaplayer.PlayerManager;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.GuildVoiceState;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -85,7 +84,11 @@ public class QueueCommand implements TextCommand {
         messageChannel.sendTyping().queue();
 
         EmbedBuilder eb = Helper.generateQueueEmbed(queue, page);
-        messageChannel.sendMessageEmbeds(eb.build()).queue();
+
+        // Add Action Rows
+        MessageAction messageAction = messageChannel.sendMessageEmbeds(eb.build());
+        messageAction.setActionRow(Button.primary("backTextQueue", "<"), Button.primary("nextTextQueue", ">"));
+        messageAction.queue();
     }
 
     @Override

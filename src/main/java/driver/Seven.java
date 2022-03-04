@@ -1,6 +1,7 @@
 package driver;
 
-import listeners.TextCommandListener;
+import listeners.text.TextCommandButtonListener;
+import listeners.text.TextCommandListener;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -22,5 +23,6 @@ public class Seven {
 
         // Set Listeners
         jda.addEventListener(new TextCommandListener(BOT_PREFIX));
+        jda.addEventListener(new TextCommandButtonListener());
     }
 }

@@ -54,6 +54,19 @@ public class Helper {
         }
     }
 
+    public static boolean isNumber(char number) {
+        if (number == '\0') {
+            return false;
+        }
+
+        try {
+            Long.parseLong(String.valueOf(number));
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
     /*
         Generates an Embed Builder for view queue messages
     */
@@ -76,7 +89,7 @@ public class Helper {
             list += String.format("%d. [%s - %s](%s) [%s]\n", i, track.getInfo().author, track.getInfo().title, track.getInfo().uri, Helper.formatSongDuration(track.getDuration()));
         }
         eb.setDescription(list);
-        eb.setFooter(String.format("Displaying tracks %d to %d of %d | Page %d/%d", startIndex, i, queueSize, page, totalPages - 1));
+        eb.setFooter(String.format("Page %d/%d | Displaying tracks %d to %d of %d", page, totalPages - 1, startIndex, i, queueSize));
         return eb;
     }
 
@@ -150,5 +163,32 @@ public class Helper {
             return false;
         }
         return true;
+    }
+
+    public static boolean validateRemoveQueueArguments(String argument) {
+
+        ArrayList<Integer> indexes = new ArrayList<>();
+
+        String currentNumber = "";
+        for (char c: argument.toCharArray()) {
+            if (isNumber(c)) {
+                currentNumber += c;
+            } else if (c == ',') {
+                indexes.add(Integer.parseInt(currentNumber));
+                currentNumber = "";
+            }
+        }
+
+        if (isNumber(currentNumber)) {
+            indexes.add(Integer.parseInt(currentNumber));
+        } else {
+            return false;
+        }
+
+        for (int i: indexes) {
+            System.out.println(i);
+        }
+
+        return false;
     }
 }

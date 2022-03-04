@@ -1,4 +1,4 @@
-package listeners;
+package listeners.text;
 
 import commands.text.TextCommandHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
