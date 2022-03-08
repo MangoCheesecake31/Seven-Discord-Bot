@@ -4,10 +4,6 @@ import commands.text.TextCommand;
 import commands.text.TextCommandContext;
 import helpers.Helper;
 import lavaplayer.PlayerManager;
-import net.dv8tion.jda.api.entities.GuildVoiceState;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.managers.AudioManager;
 
 import java.util.ArrayList;
 import java.util.List;

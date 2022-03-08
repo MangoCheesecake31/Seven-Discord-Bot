@@ -15,10 +15,8 @@ public class TextCommandListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        // Ignore Bots
-        if (event.getAuthor().isBot() && event.isWebhookMessage()) {
-            return;
-        }
+        // Ignore Bots, Webhooks, Idiots in DMs
+        if (event.getAuthor().isBot() || event.isWebhookMessage() || !event.isFromGuild()) { return; }
 
         // Handle Command
         if (event.getMessage().getContentRaw().startsWith(this.bot_prefix)) {

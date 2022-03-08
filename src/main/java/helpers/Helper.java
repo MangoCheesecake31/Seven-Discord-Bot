@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-
 public class Helper {
     public static String formatSongDuration(long time) {
         // Compute Hours, Minutes, Seconds
@@ -70,28 +69,8 @@ public class Helper {
     /*
         Generates an Embed Builder for view queue messages
     */
-    public static EmbedBuilder generateQueueEmbed(BlockingQueue<AudioTrack> queue, int page) {
-        EmbedBuilder eb = new EmbedBuilder();
-        eb.setTitle("Current Queue");
-        eb.setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)));
 
-        // Build Queue List String
-        ArrayList<AudioTrack> trackList = new ArrayList<>(queue);
-        int queueSize = trackList.size();
-        int startIndex = page * 20;
-        int endIndex = startIndex  + 20;
-        int totalPages = (int) Math.ceil(queue.size() * 1.0 / 20);
 
-        String list = "";
-        int i;
-        for (i = startIndex; i < queueSize && i < endIndex; i++) {
-            AudioTrack track = trackList.get(i);
-            list += String.format("%d. [%s - %s](%s) [%s]\n", i, track.getInfo().author, track.getInfo().title, track.getInfo().uri, Helper.formatSongDuration(track.getDuration()));
-        }
-        eb.setDescription(list);
-        eb.setFooter(String.format("Page %d/%d | Displaying tracks %d to %d of %d", page, totalPages - 1, startIndex, i, queueSize));
-        return eb;
-    }
 
     /*
         Generates an Embed Builder for simple messages
@@ -165,30 +144,4 @@ public class Helper {
         return true;
     }
 
-    public static boolean validateRemoveQueueArguments(String argument) {
-
-        ArrayList<Integer> indexes = new ArrayList<>();
-
-        String currentNumber = "";
-        for (char c: argument.toCharArray()) {
-            if (isNumber(c)) {
-                currentNumber += c;
-            } else if (c == ',') {
-                indexes.add(Integer.parseInt(currentNumber));
-                currentNumber = "";
-            }
-        }
-
-        if (isNumber(currentNumber)) {
-            indexes.add(Integer.parseInt(currentNumber));
-        } else {
-            return false;
-        }
-
-        for (int i: indexes) {
-            System.out.println(i);
-        }
-
-        return false;
-    }
 }

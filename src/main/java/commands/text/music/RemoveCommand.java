@@ -1,6 +1,5 @@
 package commands.text.music;
 
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import commands.text.TextCommand;
 import commands.text.TextCommandContext;
@@ -8,11 +7,12 @@ import helpers.Helper;
 import lavaplayer.GuildMusicManager;
 import lavaplayer.PlayerManager;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class RemoveCommand implements TextCommand {
     private String name;
@@ -25,46 +25,105 @@ public class RemoveCommand implements TextCommand {
         this.aliases.add("rq");
     }
 
-
     @Override
     public void handle(TextCommandContext context) {
+        // Retrieve: Messages
+        Message message = context.getEvent().getMessage();
 
-        // Retrieve variables
-        MessageChannel messageChannel = context.getEvent().getChannel();
+        // Validate: Voice States
+        if (!Helper.validateUserMusicVoiceState(context, false)) { return; }
 
-        // Validate Voice States
-        if (!Helper.validateUserMusicVoiceState(context, false)) {
-            return;
-        }
-
-        // Check if arguments were provided
+        // Retrieve: Command Argument
         String args[] = context.getArgs();
 
+        // Validate: Command Argument
         if (args.length == 0) {
-            EmbedBuilder eb = Helper.generateSimpleEmbed("Missing Argument", "Syntax: remove <track number A>, <track number B>...");
-            messageChannel.sendMessageEmbeds(eb.build()).queue();
+            message.replyEmbeds(Helper.generateSimpleEmbed("Missing Argument", "Syntax: remove <track number A>, <track number B>... or <track number A>-<track number B>").build()).queue();
             return;
         }
 
-        String arg = String.join(" ", args);
-        int indexes;
+        // Get AudioPlayer
+        GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(context.getEvent().getGuild());
+        BlockingQueue<AudioTrack> queue = musicManager.scheduler.queue;
 
+        // Validate arguments
+        String regex = "[0-9]*(-[0-9]+)?";
+        String expressions[] = String.join("", args).replace(" ", "").split(",");
+        Set<Integer> indexes = new HashSet<>();
 
-        Helper.validateRemoveQueueArguments(arg);
+        for (String exp: expressions) {
+            if (exp.matches(regex)) {
+                // Range Expression
+                if (exp.contains("-")) {
+                    String range[] = exp.split("-");
+                    int start = Integer.parseInt(range[0]);
+                    int end = Integer.parseInt(range[1]);
 
+                    // Validate: Range Format
+                    if (start > end) {
+                        // Reply: Invalid Range Format
+                        message.replyEmbeds(Helper.generateSimpleEmbed("Invalid Argument", String.format("Error: Range is not expressed correctly [%d-%d].", start, end)).build()).queue();
+                        return;
+                    }
 
+                    // Validate: Range Indexes
+                    if (queue.size() < start || queue.size() < end) {
+                        // Reply: Invalid Range
+                        message.replyEmbeds(Helper.generateSimpleEmbed("Invalid Argument", String.format("Error: Range exceeds queue size. [%d-%d]", start, end)).build()).queue();
+                        return;
+                    }
 
-//
-//        // Get AudioPlayer
-//        GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(context.getEvent().getGuild());
-//        BlockingQueue<AudioTrack> queue = musicManager.scheduler.queue;
-//
-//        ArrayList<AudioTrack> trackList = new ArrayList<>(queue);
+                    // TODO: fucking do this (range + 1 erik's fault)
 
+                    for (int i = start; i <= end; i++) {
+                        indexes.add(i);
+                    }
+                } else {
+                    int index = Integer.parseInt(exp);
+                    // Validate: Range Indexes
+                    if (index > queue.size() || index < 1) {
+                        // Reply: Invalid Range
+                        EmbedBuilder eb = Helper.generateSimpleEmbed("Invalid Argument", String.format("Error: Index exceeds queue size. [%d]", index));
+                        messageChannel.sendMessageEmbeds(eb.build()).queue();
+                        return;
+                    }
 
+                    indexes.add(index);
+                }
+            } else {
+                // Reply Error
+                EmbedBuilder eb = Helper.generateSimpleEmbed("Invalid Argument", String.format("Error: [%s].", exp));
+                messageChannel.sendMessageEmbeds(eb.build()).queue();
+                return;
+            }
+        }
 
+        // Sort and Reverse Order
+        ArrayList<Integer> removeIndexes = new ArrayList<>();
+        removeIndexes.addAll(indexes);
+        Collections.sort(removeIndexes);
+        Collections.reverse(removeIndexes);
 
+        // Remove Tracks
+        ArrayList<AudioTrack> trackList = new ArrayList<>(queue);
+        for (int i: removeIndexes) {
+            trackList.remove(i);
+        }
 
+        // Create updated queue
+        BlockingQueue<AudioTrack> newQueue = new LinkedBlockingQueue<>();
+        for (AudioTrack track: trackList) {
+           newQueue.offer(track);
+        }
+
+        // Update Queue
+        musicManager.scheduler.queue = newQueue;
+
+        // Reply
+        messageChannel.sendTyping().queue();
+
+        EmbedBuilder eb = Helper.generateSimpleEmbed(String.format("Removed %d Track(s) from Queue", removeIndexes.size()), "");
+        messageChannel.sendMessageEmbeds(eb.build()).queue();
     }
 
     @Override

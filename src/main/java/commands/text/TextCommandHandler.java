@@ -66,11 +66,7 @@ public class TextCommandHandler  {
         String[] args = event.getMessage().getContentRaw().replaceFirst(Pattern.quote(BOT_PREFIX), "").split("\\s");
         TextCommand invokeCommand = this.getCommand(args[0].toLowerCase());
 
-        if (invokeCommand != null) {
-            invokeCommand.handle(new TextCommandContext(event, args));
-        } else {
-            event.getChannel().sendTyping().queue();
-            event.getChannel().sendMessage("Not a command motherfucker!").queue();
-        }
+        if (invokeCommand == null) { return; }
+        invokeCommand.handle(new TextCommandContext(event, args));
     }
 }

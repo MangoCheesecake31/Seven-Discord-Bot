@@ -3,16 +3,12 @@ package commands.text.music;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import commands.text.TextCommand;
 import commands.text.TextCommandContext;
-import driver.Config;
 import helpers.Helper;
 import lavaplayer.GuildMusicManager;
 import lavaplayer.PlayerManager;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.GuildVoiceState;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 

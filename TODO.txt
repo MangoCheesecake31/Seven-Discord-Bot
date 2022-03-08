@@ -1,5 +1,4 @@
 
 
-
-> Skip Command: Add a feature that allows users to specify to skip a number of tracks
-> Remove Command: Add a feature that allows users to remove tracks on specific indexes and ranges;
+> Queue Buttons: Add a case for when the page number has been completely deleted
+> Store IDS not objects

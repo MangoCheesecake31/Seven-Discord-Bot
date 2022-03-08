@@ -1,11 +1,11 @@
 package driver;
 
-import listeners.text.TextCommandButtonListener;
 import listeners.text.TextCommandListener;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import javax.security.auth.login.LoginException;
 
@@ -23,6 +23,8 @@ public class Seven {
 
         // Set Listeners
         jda.addEventListener(new TextCommandListener(BOT_PREFIX));
-        jda.addEventListener(new TextCommandButtonListener());
+
+        // Settings
+        MessageAction.setDefaultMentionRepliedUser(false);
     }
 }
