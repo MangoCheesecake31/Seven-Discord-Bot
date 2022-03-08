@@ -58,7 +58,7 @@ public class QueueCommand implements TextCommand {
         String[] args = context.getArgs();
 
         // Validate: Command Arguments
-        int page = 0;
+        int page = 1;
         if (args.length != 0) {
             if (!Helper.isNumber(args[0])) {
                 // Reply: Argument Error
@@ -66,17 +66,25 @@ public class QueueCommand implements TextCommand {
                 return;
             }
             page = Integer.parseInt(args[0]);
+            if (page < 1) {
+                // Reply: Argument Error
+                message.replyEmbeds(Helper.generateSimpleEmbed("Invalid Argument", String.format("Error: Page number provided is invalid [%d].", page)).build()).queue();
+                return;
+            }
         }
 
         // Compute: Max Pages
         int totalPages = (int) Math.ceil(queue.size() * 1.0 / 20);
 
         // Validate: Page Range
-        if (page >= totalPages) {
+        if (totalPages < page) {
             // Reply: Page Range Error
-            message.replyEmbeds(Helper.generateSimpleEmbed("Invalid Page", "Error: Argument provided exceeds the current queue size.").build());
+            message.replyEmbeds(Helper.generateSimpleEmbed("Invalid Page", "Error: Argument provided exceeds the current queue size.").build()).queue();
             return;
         }
+
+        // Update: Adjust page index for Arrays
+        page--;
 
         // Reply: Queue Message
         QueuePageButtons eventListener = new QueuePageButtons(queue, page, context.getEvent().getJDA());
