@@ -2,6 +2,10 @@ package commands.text.general;
 
 import commands.text.TextCommand;
 import commands.text.TextCommandContext;
+import commands.text.TextCommandHandler;
+import helpers.Helper;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.ArrayList;
@@ -18,9 +22,28 @@ public class HelpCommand implements TextCommand {
 
     @Override
     public void handle(TextCommandContext context) {
+        // Retrieve: Messages
+        Message message = context.getEvent().getMessage();
 
-        // TODO: Fancy Smancy Embed
+        // Retrieve: Command Arguments
+        String args[] = context.getArgs();
 
+        // Retrieve: Queried Command
+        String command = (args.length == 0) ? "help" : args[0].toLowerCase();
+
+        // Retrieve: Text Command
+        TextCommand textCommand = TextCommandHandler.commands.get(command);
+        textCommand = (textCommand == null) ? TextCommandHandler.aliases.get(command) : textCommand;
+
+        // Validate: Existing Command
+        if (textCommand == null) {
+            // Reply: Invalid Command
+            message.replyEmbeds(Helper.generateSimpleEmbed("Invalid Argument", "Error: Queried command does not exist.").build()).queue();
+            return;
+        }
+
+        // Reply: Command Help Info
+        message.replyEmbeds(textCommand.getHelpEmbed().build()).queue();
     }
 
     @Override
@@ -31,5 +54,10 @@ public class HelpCommand implements TextCommand {
     @Override
     public List<String> getAliases() {
         return this.aliases;
+    }
+
+    @Override
+    public EmbedBuilder getHelpEmbed() {
+        return null;
     }
 }

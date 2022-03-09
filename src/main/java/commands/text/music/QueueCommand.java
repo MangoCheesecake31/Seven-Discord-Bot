@@ -57,46 +57,47 @@ public class QueueCommand implements TextCommand {
         // Retrieve: Command Arguments
         String[] args = context.getArgs();
 
-        // Validate: Command Arguments
-        int page = 1;
-        if (args.length != 0) {
-            if (!Helper.isNumber(args[0])) {
-                // Reply: Argument Error
-                message.replyEmbeds(Helper.generateSimpleEmbed("Invalid Argument", "Error: Argument provided must be a whole number.").build());
-                return;
-            }
-            page = Integer.parseInt(args[0]);
+        try {
+            // Retrieve: Queried Page
+            int page = (args.length == 0) ? 1 : Integer.parseInt(args[0]);
+
+            // Validate; Queried Page
             if (page < 1) {
-                // Reply: Argument Error
-                message.replyEmbeds(Helper.generateSimpleEmbed("Invalid Argument", String.format("Error: Page number provided is invalid [%d].", page)).build()).queue();
-                return;
+                throw new IllegalArgumentException("Error: Argument provided must be a whole number.");
             }
+
+            // Compute: Max Pages
+            int totalPages = (int) Math.ceil(queue.size() * 1.0 / 20);
+
+            // Validate: Page Range
+            if (totalPages < page) {
+                throw new IllegalArgumentException(String.format("Error: Argument provided exceeds the current queue size [%d].", page));
+            }
+
+            // Update: Adjust page index for Arrays
+            page--;
+
+            // Reply: Queue Message
+            QueuePageButtons eventListener = new QueuePageButtons(queue, page, context.getEvent().getJDA());
+            message.replyEmbeds(eventListener.generateQueueEmbed().build())
+                    .setActionRows(eventListener.generateButtonComponents())
+                    .queue(msg -> {
+                        eventListener.setMessageId(msg.getIdLong());
+                        eventListener.setChannelId(msg.getChannel().getIdLong());
+                    });
+
+            // Apply: Event Listener
+            context.getEvent().getJDA().addEventListener(eventListener);
+
+        } catch (NumberFormatException e) {
+            // Reply: Argument Error
+            message.replyEmbeds(Helper.generateSimpleEmbed("Invalid Argument", "Error: Argument provided must be a whole number.").build()).queue();
+
+        } catch (IllegalArgumentException e) {
+            // Reply: Argument Error
+            message.replyEmbeds(Helper.generateSimpleEmbed("Invalid Argument", e.getMessage()).build()).queue();
+
         }
-
-        // Compute: Max Pages
-        int totalPages = (int) Math.ceil(queue.size() * 1.0 / 20);
-
-        // Validate: Page Range
-        if (totalPages < page) {
-            // Reply: Page Range Error
-            message.replyEmbeds(Helper.generateSimpleEmbed("Invalid Page", "Error: Argument provided exceeds the current queue size.").build()).queue();
-            return;
-        }
-
-        // Update: Adjust page index for Arrays
-        page--;
-
-        // Reply: Queue Message
-        QueuePageButtons eventListener = new QueuePageButtons(queue, page, context.getEvent().getJDA());
-        message.replyEmbeds(eventListener.generateQueueEmbed().build())
-                .setActionRows(eventListener.generateButtonComponents())
-                .queue(msg -> {
-                    eventListener.setMessageId(msg.getIdLong());
-                    eventListener.setChannelId(msg.getChannel().getIdLong());
-                });
-
-        // Apply: Event Listener
-        context.getEvent().getJDA().addEventListener(eventListener);
     }
 
     @Override
@@ -107,6 +108,12 @@ public class QueueCommand implements TextCommand {
     @Override
     public List<String> getAliases() {
         return this.aliases;
+    }
+
+    @Override
+    public EmbedBuilder getHelpEmbed() {
+        return new EmbedBuilder()
+                .setTitle("Help" );
     }
 
     private class QueuePageButtons extends ListenerAdapter {

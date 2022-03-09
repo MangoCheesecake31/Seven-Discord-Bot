@@ -11,14 +11,12 @@ import java.util.HashMap;
 import java.util.regex.Pattern;
 
 public class TextCommandHandler  {
-    private final HashMap<String, TextCommand> commands;
-    private final HashMap<String, TextCommand> aliases;
+    public final static HashMap<String, TextCommand> commands = new HashMap<>();
+    public final static HashMap<String, TextCommand> aliases = new HashMap<>();
     private final String BOT_PREFIX;
 
     public TextCommandHandler(String prefix) {
         this.BOT_PREFIX = prefix;
-        this.commands = new HashMap<>();
-        this.aliases = new HashMap<>();
 
         // Populate Text Commands
         this.addTextCommand(new PingCommand());
@@ -37,17 +35,17 @@ public class TextCommandHandler  {
 
     private void addTextCommand(TextCommand newCommand) {
         // Check command names and aliases
-        if (this.commands.get(newCommand.getName()) == null && this.aliases.get(newCommand.getName()) == null) {
+        if (commands.get(newCommand.getName()) == null && aliases.get(newCommand.getName()) == null) {
             for (String alias: newCommand.getAliases()) {
-                if (this.commands.get(alias) != null || this.aliases.get(alias) != null) {
+                if (commands.get(alias) != null || aliases.get(alias) != null) {
                     throw new IllegalArgumentException("A command with this name/alias already exist! [" + alias + "]");
                 }
             }
 
             // Add to Maps
-            this.commands.put(newCommand.getName(), newCommand);
+            commands.put(newCommand.getName(), newCommand);
             for (String alias: newCommand.getAliases()) {
-                this.aliases.put(alias, newCommand);
+                aliases.put(alias, newCommand);
             }
             return;
         }
@@ -55,9 +53,9 @@ public class TextCommandHandler  {
     }
 
     private TextCommand getCommand(String query) {
-        TextCommand invokedCommand =  this.commands.get(query);
+        TextCommand invokedCommand =  commands.get(query);
         if (invokedCommand == null) {
-            invokedCommand = this.aliases.get(query);
+            invokedCommand = aliases.get(query);
         }
         return invokedCommand;
     }

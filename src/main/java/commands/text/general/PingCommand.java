@@ -2,6 +2,7 @@ package commands.text.general;
 
 import commands.text.TextCommand;
 import commands.text.TextCommandContext;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -39,5 +40,10 @@ public class PingCommand implements TextCommand {
     @Override
     public List<String> getAliases() {
         return this.aliases;
+    }
+
+    @Override
+    public EmbedBuilder getHelpEmbed() {
+        return null;
     }
 }

@@ -60,4 +60,9 @@ public class StopCommand implements TextCommand {
     public List<String> getAliases() {
         return this.aliases;
     }
+
+    @Override
+    public EmbedBuilder getHelpEmbed() {
+        return null;
+    }
 }

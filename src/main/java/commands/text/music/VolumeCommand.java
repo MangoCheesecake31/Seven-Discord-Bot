@@ -25,62 +25,49 @@ public class VolumeCommand implements TextCommand {
 
     @Override
     public void handle(TextCommandContext context) {
-
-        // Retrieve variables
-        MessageChannel messageChannel = context.getEvent().getChannel();
+        // Retrieve: Messages
         Message message = context.getEvent().getMessage();
 
-        // Validate Voice States
-        if (!Helper.validateUserMusicVoiceState(context, false)) {
-            return;
-        }
+        // Validate: Voice States
+        if (!Helper.validateUserMusicVoiceState(context, false)) { return; }
 
-        // Get AudioPlayer
+        // Retrieve: AudioPlayer
         GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(context.getEvent().getGuild());
         AudioPlayer audioPlayer = musicManager.player;
 
-        // Retrieve arguments
+        // Retrieve: Command Arguments
         String[] args = context.getArgs();
 
-        // Check if arguments were provided
+        // Validate: Command Arguments
         if (args.length == 0) {
-            // Reply Error
-            messageChannel.sendTyping().queue();
-
-            EmbedBuilder eb = Helper.generateSimpleEmbed(String.format("Current Volume: %d", audioPlayer.getVolume()), "");
-            messageChannel.sendMessageEmbeds(eb.build()).queue();
+            // Reply: Current Volume
+            message.replyEmbeds(Helper.generateSimpleEmbed(String.format("Current Volume: %d", audioPlayer.getVolume()), "").build()).queue();
             return;
         }
 
-        // Check if argument are valid
-        if (!Helper.isNumber(args[0])) {
-            // Reply Error
-            messageChannel.sendTyping().queue();
+        try {
+            int volume = Integer.parseInt(args[0]);
 
-            EmbedBuilder eb = Helper.generateSimpleEmbed("Invalid Argument", "Error: Argument provided must be a whole number (0 - 100).");
-            messageChannel.sendMessageEmbeds(eb.build()).queue();
-            return;
+            // Validate: Volume Range
+            if (volume < 0 || 100 < volume) {
+                throw new IllegalArgumentException("Error: Volume provided must be value in the range of 0 - 100.");
+            }
+
+            // Apply: Adjust AudioPlayer Volume
+            audioPlayer.setVolume(volume);
+
+            // Reply: Success
+            message.replyEmbeds(Helper.generateSimpleEmbed(String.format("Volume set to %d", volume), "").build()).queue();
+
+        } catch (NumberFormatException e) {
+            // Reply: Argument Error
+            message.replyEmbeds(Helper.generateSimpleEmbed("Invalid Argument", "Error: Volume provided must be a whole number between 0 - 100.").build()).queue();
+
+        } catch (IllegalArgumentException e) {
+            // Reply: Argument Error
+            message.replyEmbeds(Helper.generateSimpleEmbed("Invalid Argument", e.getMessage()).build()).queue();
+
         }
-
-        int level = Integer.parseInt(context.getArgs()[0]);
-        // Check if argument is a valid level
-        if (level < 0 || 100 < level) {
-            // Reply Error
-            messageChannel.sendTyping().queue();
-
-            EmbedBuilder eb = Helper.generateSimpleEmbed("Invalid Argument", "Error: Argument provided must be value in the range (0 - 100).");
-            messageChannel.sendMessageEmbeds(eb.build()).queue();
-            return;
-        }
-
-        // Set Volume
-        audioPlayer.setVolume(level);
-
-        // Reply
-        messageChannel.sendTyping().queue();
-
-        EmbedBuilder eb = Helper.generateSimpleEmbed(String.format("Volume set to %d", level), "");
-        messageChannel.sendMessageEmbeds(eb.build()).queue();
     }
 
     @Override
@@ -91,5 +78,10 @@ public class VolumeCommand implements TextCommand {
     @Override
     public List<String> getAliases() {
         return this.aliases;
+    }
+
+    @Override
+    public EmbedBuilder getHelpEmbed() {
+        return null;
     }
 }

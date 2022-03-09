@@ -12,8 +12,6 @@ import net.dv8tion.jda.api.managers.AudioManager;
 import java.awt.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class Helper {
@@ -65,10 +63,6 @@ public class Helper {
             return false;
         }
     }
-
-    /*
-        Generates an Embed Builder for view queue messages
-    */
 
 
 

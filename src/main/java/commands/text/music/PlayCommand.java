@@ -2,9 +2,12 @@ package commands.text.music;
 
 import commands.text.TextCommand;
 import commands.text.TextCommandContext;
+import driver.Config;
 import helpers.Helper;
 import lavaplayer.PlayerManager;
+import net.dv8tion.jda.api.EmbedBuilder;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,5 +49,14 @@ public class PlayCommand implements TextCommand {
     @Override
     public List<String> getAliases() {
         return this.aliases;
+    }
+
+    @Override
+    public EmbedBuilder getHelpEmbed() {
+        return new EmbedBuilder()
+                .setTitle("Command: play")
+                .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)))
+                .setDescription("Syntax: `$play <Youtube Video/Playlist URL>`\n")
+                .setFooter("Aliases: p");
     }
 }
