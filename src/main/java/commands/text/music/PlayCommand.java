@@ -2,6 +2,7 @@ package commands.text.music;
 
 import commands.text.TextCommand;
 import commands.text.TextCommandContext;
+import commands.text.TextCommandHandler;
 import driver.Config;
 import helpers.Helper;
 import lavaplayer.PlayerManager;
@@ -53,10 +54,19 @@ public class PlayCommand implements TextCommand {
 
     @Override
     public EmbedBuilder getHelpEmbed() {
+        // Build: Help Description
+        StringBuilder sb = new StringBuilder();
+        sb.append("Command: `").append(this.getName()).append("`\n");
+        sb.append("Aliases: `").append(String.join("`, `", this.getAliases())).append("`\n");
+        sb.append("```");
+        sb.append("Description: ").append("Plays or queues a song.").append("\n");
+        sb.append("Syntax:      ").append(TextCommandHandler.BOT_PREFIX).append(this.getName()).append(" [YouTube URL]").append("\n");
+        sb.append("             ").append(TextCommandHandler.BOT_PREFIX).append(this.getName()).append(" [Query]").append("\n");
+        sb.append("```");
+
         return new EmbedBuilder()
-                .setTitle("Command: play")
-                .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)))
-                .setDescription("Syntax: `$play <Youtube Video/Playlist URL>`\n")
-                .setFooter("Aliases: p");
+                .setTitle("Help Command")
+                .setDescription(sb.toString())
+                .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)));
     }
 }

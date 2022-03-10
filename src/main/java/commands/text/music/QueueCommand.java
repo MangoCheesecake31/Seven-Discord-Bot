@@ -4,6 +4,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import commands.text.TextCommand;
 import commands.text.TextCommandContext;
+import commands.text.TextCommandHandler;
 import driver.Config;
 import helpers.Helper;
 import lavaplayer.GuildMusicManager;
@@ -112,8 +113,20 @@ public class QueueCommand implements TextCommand {
 
     @Override
     public EmbedBuilder getHelpEmbed() {
+        // Build: Help Description
+        StringBuilder sb = new StringBuilder();
+        sb.append("Command: `").append(this.getName()).append("`\n");
+        sb.append("Aliases: `").append(String.join("`, `", this.getAliases())).append("`\n");
+        sb.append("```");
+        sb.append("Description: ").append("Shows a list fo the current queue.").append("\n");
+        sb.append("Syntax:      ").append(TextCommandHandler.BOT_PREFIX).append(this.getName()).append(" [Page Number]").append("\n");
+        sb.append("             ").append(TextCommandHandler.BOT_PREFIX).append(this.getName()).append("\n");
+        sb.append("```");
+
         return new EmbedBuilder()
-                .setTitle("Help" );
+                .setTitle("Help Command")
+                .setDescription(sb.toString())
+                .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)));
     }
 
     private class QueuePageButtons extends ListenerAdapter {

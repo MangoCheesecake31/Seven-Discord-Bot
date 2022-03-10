@@ -13,10 +13,10 @@ import java.util.regex.Pattern;
 public class TextCommandHandler  {
     public final static HashMap<String, TextCommand> commands = new HashMap<>();
     public final static HashMap<String, TextCommand> aliases = new HashMap<>();
-    private final String BOT_PREFIX;
+    public static String BOT_PREFIX;
 
     public TextCommandHandler(String prefix) {
-        this.BOT_PREFIX = prefix;
+        BOT_PREFIX = prefix;
 
         // Populate Text Commands
         this.addTextCommand(new PingCommand());

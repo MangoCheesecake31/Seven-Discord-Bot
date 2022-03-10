@@ -3,13 +3,15 @@ package commands.text.music;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import commands.text.TextCommand;
 import commands.text.TextCommandContext;
+import commands.text.TextCommandHandler;
+import driver.Config;
 import helpers.Helper;
 import lavaplayer.GuildMusicManager;
 import lavaplayer.PlayerManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,6 +84,19 @@ public class VolumeCommand implements TextCommand {
 
     @Override
     public EmbedBuilder getHelpEmbed() {
-        return null;
+        // Build: Help Description
+        StringBuilder sb = new StringBuilder();
+        sb.append("Command: `").append(this.getName()).append("`\n");
+        sb.append("Aliases: `").append(String.join("`, `", this.getAliases())).append("`\n");
+        sb.append("```");
+        sb.append("Description: ").append("Change or display the volume.").append("\n");
+        sb.append("Syntax:      ").append(TextCommandHandler.BOT_PREFIX).append(this.getName()).append(" [Volume]").append("\n");
+        sb.append("             ").append(TextCommandHandler.BOT_PREFIX).append(this.getName()).append("\n");
+        sb.append("```");
+
+        return new EmbedBuilder()
+                .setTitle("Help Command")
+                .setDescription(sb.toString())
+                .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)));
     }
 }

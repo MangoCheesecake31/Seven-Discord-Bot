@@ -4,13 +4,16 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import commands.text.TextCommand;
 import commands.text.TextCommandContext;
+import commands.text.TextCommandHandler;
+import driver.Config;
 import helpers.Helper;
 import lavaplayer.GuildMusicManager;
 import lavaplayer.PlayerManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import org.w3c.dom.Text;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,35 +29,24 @@ public class NowPlayingCommand implements TextCommand {
 
     @Override
     public void handle(TextCommandContext context) {
-
-        // Retrieve variables
-        MessageChannel messageChannel = context.getEvent().getChannel();
+        // Retrieve: Messages
         Message message = context.getEvent().getMessage();
 
-        // Validate Voice States
-        if (!Helper.validateUserMusicVoiceState(context, false)) {
-            return;
-        }
+        // Validate: Voice States
+        if (!Helper.validateUserMusicVoiceState(context, false)) { return; }
 
-        // Get current audio track
+        // Retrieve: AudioTrack
         GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(context.getEvent().getGuild());
-        AudioPlayer audioPlayer = musicManager.player;
-        AudioTrack playingTrack = audioPlayer.getPlayingTrack();
+        AudioTrack playingTrack = musicManager.player.getPlayingTrack();
 
-        // Check if the track is playing
+        // Validate: Existing Tracks
         if (playingTrack == null) {
-            messageChannel.sendTyping().queue();
-
-            EmbedBuilder eb = Helper.generateSimpleEmbed("There is no track playing!", "");
-            message.replyEmbeds(eb.build()).queue();
+            message.replyEmbeds(Helper.generateSimpleEmbed("There is no track playing!", "").build()).queue();
             return;
         }
 
-        // Reply
-        messageChannel.sendTyping().queue();
-
-        EmbedBuilder eb = Helper.generateNowPlayingEmbed(playingTrack, true);
-        messageChannel.sendMessageEmbeds(eb.build()).queue();
+        // Reply: Playing Track
+        message.replyEmbeds(Helper.generateNowPlayingEmbed(playingTrack, true).build()).queue();
     }
 
     @Override
@@ -69,6 +61,18 @@ public class NowPlayingCommand implements TextCommand {
 
     @Override
     public EmbedBuilder getHelpEmbed() {
-        return null;
+        // Build: Help Description
+        StringBuilder sb = new StringBuilder();
+        sb.append("Command: `").append(this.getName()).append("`\n");
+        sb.append("Aliases: `").append(String.join("`, `", this.getAliases())).append("`\n");
+        sb.append("```");
+        sb.append("Description: ").append("Show the details of the current song playing.").append("\n");
+        sb.append("Syntax:      ").append(TextCommandHandler.BOT_PREFIX).append(this.getName()).append("\n");
+        sb.append("```");
+
+        return new EmbedBuilder()
+                .setTitle("Help Command")
+                .setDescription(sb.toString())
+                .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)));
     }
 }
