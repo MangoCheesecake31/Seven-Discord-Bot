@@ -1,5 +1,6 @@
 package commands.text;
 
+import commands.text.general.DevCommand;
 import commands.text.general.HelpCommand;
 import commands.text.general.InfoCommand;
 import commands.text.general.PingCommand;
@@ -31,6 +32,7 @@ public class TextCommandHandler  {
         this.addTextCommand(new QueueCommand());
         this.addTextCommand(new VolumeCommand());
         this.addTextCommand(new RemoveCommand());
+        this.addTextCommand(new DevCommand());
     }
 
     private void addTextCommand(TextCommand newCommand) {

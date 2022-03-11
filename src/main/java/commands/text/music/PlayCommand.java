@@ -7,6 +7,7 @@ import driver.Config;
 import helpers.Helper;
 import lavaplayer.PlayerManager;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -24,22 +25,22 @@ public class PlayCommand implements TextCommand {
 
     @Override
     public void handle(TextCommandContext context) {
+        // Retrieve: Messages
+        Message message = context.getEvent().getMessage();
 
-        // Validate Voice States
-        if (!Helper.validateUserMusicVoiceState(context, true)) {
-            return;
-        }
+        // Validate: Voice States
+        if (!Helper.validateUserMusicVoiceState(context, true)) { return; }
 
-        // Create link
+        // Retrieve: Command Arguments
         String link = String.join(" ", String.join(" ", context.getArgs()));
 
-        // Validate URL
+        // Validate: URL
         if (!Helper.isUrl(link)) {
             link = "ytsearch:" + link;
         }
 
-        // Queue Track
-        PlayerManager.getInstance().loadAndPlay(context.getEvent().getTextChannel(), link, context.getEvent().getAuthor());
+        // Apply: Queue Track
+        PlayerManager.getInstance().loadAndPlay(message, link, message.getAuthor());
     }
 
     @Override

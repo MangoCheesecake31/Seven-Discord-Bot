@@ -2,3 +2,4 @@
 
 > Queue Buttons: Add a case for when the page number has been completely deleted
 > Store IDS not objects
+> Music Queue Limit

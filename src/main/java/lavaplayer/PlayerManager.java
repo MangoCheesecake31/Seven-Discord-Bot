@@ -11,8 +11,10 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import driver.Config;
+import helpers.Helper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
@@ -25,6 +27,7 @@ public class PlayerManager {
     private static PlayerManager INSTANCE;
     private Map<Long, GuildMusicManager> musicManager;
     private AudioPlayerManager audioPlayerManager;
+    private final int maxQueueSize = Integer.parseInt(Config.get("MAX_QUEUE_SIZE"));
 
     public PlayerManager() {
         this.musicManager = new HashMap<>();
@@ -52,58 +55,75 @@ public class PlayerManager {
         });
     }
 
-    public void loadAndPlay(TextChannel channel, String trackUrl, User author) {
-        GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
+    public void loadAndPlay(Message message, String trackUrl, User author) {
+        GuildMusicManager musicManager = this.getMusicManager(message.getGuild());
         this.audioPlayerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
-                // Queue Track
-                musicManager.scheduler.queueTrack(track, channel);
+                // Retrieve: Current Queue Size
+                int totalTracks = musicManager.scheduler.queue.size();
 
-                // Reply
-                channel.sendTyping().queue();
+                // Validate: Queue Size
+                if (validateQueueSize(totalTracks, message)) {
+                    // Apply: Queue Track
+                    musicManager.scheduler.queueTrack(track, message.getTextChannel());
 
-                EmbedBuilder eb = new EmbedBuilder()
-                        .setTitle("Queued", track.getInfo().uri)
-                        .setDescription("**Track**: " + track.getInfo().author + " - " + track.getInfo().title)
-                        .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)))
-                        .setFooter(author.getName(), author.getAvatarUrl());
-                channel.sendMessageEmbeds(eb.build()).queue();
-            }
-
-            @Override
-            public void playlistLoaded(AudioPlaylist playlist) {
-                List<AudioTrack> tracks = playlist.getTracks();
-
-                if (playlist.isSearchResult()) {
-                    // Queue Top Track from Query Result
-                    AudioTrack track = tracks.get(0);
-                    musicManager.scheduler.queueTrack(track, channel);
-
-                    // Reply
-                    channel.sendTyping().queue();
-
+                    // Reply: Success
                     EmbedBuilder eb = new EmbedBuilder()
                             .setTitle("Queued", track.getInfo().uri)
                             .setDescription("**Track**: " + track.getInfo().author + " - " + track.getInfo().title)
                             .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)))
                             .setFooter(author.getName(), author.getAvatarUrl());
-                    channel.sendMessageEmbeds(eb.build()).queue();
+                    message.replyEmbeds(eb.build()).queue();
+                }
+            }
+
+            @Override
+            public void playlistLoaded(AudioPlaylist playlist) {
+                // Retrieve: List of Tracks
+                List<AudioTrack> tracks = playlist.getTracks();
+
+                // Retrieve: Current Queue Size
+                int totalTracks = musicManager.scheduler.queue.size();
+                int totalQueued = 0;
+
+                if (playlist.isSearchResult()) {
+                    // Retrieve: Top entry in the Playlist
+                    AudioTrack track = tracks.get(0);
+
+                    // Validate: Queue Size
+                    if (validateQueueSize(totalTracks, message)) {
+                        // Apply: Queue Track
+                        totalQueued++;
+                        musicManager.scheduler.queueTrack(track, message.getTextChannel());
+
+                        // Reply: Success
+                        EmbedBuilder eb = new EmbedBuilder()
+                                .setTitle("Queued", track.getInfo().uri)
+                                .setDescription("**Track**: " + track.getInfo().author + " - " + track.getInfo().title)
+                                .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)))
+                                .setFooter(author.getName() + " | " + totalQueued + " track(s).", author.getAvatarUrl());
+                        message.replyEmbeds(eb.build()).queue();
+                    }
                 } else {
-                    // Queue Entire Track Playlist
+                    // Apply: Queue Tracks in Playlist
                     for (AudioTrack track: tracks) {
-                        musicManager.scheduler.queueTrack(track, channel);
+                        // Validate: Queue Size
+                        if (!validateQueueSize(totalTracks, message)) {
+                            break;
+                        }
+                        totalTracks++;
+                        totalQueued++;
+                        musicManager.scheduler.queueTrack(track, message.getTextChannel());
                     }
 
-                    // Reply
-                    channel.sendTyping().queue();
-
+                    // Reply: Success
                     EmbedBuilder eb = new EmbedBuilder()
                             .setTitle("Queued")
                             .setDescription("**Playlist**: " + playlist.getName())
                             .setColor(new Color(Integer.parseInt(Config.get("DEFAULT_EMBED_COLOR"), 16)))
-                            .setFooter(author.getName(), author.getAvatarUrl());
-                    channel.sendMessageEmbeds(eb.build()).queue();
+                            .setFooter(author.getName() + " | " + totalQueued + " track(s).", author.getAvatarUrl());
+                    message.replyEmbeds(eb.build()).queue();
                 }
             }
 
@@ -124,5 +144,14 @@ public class PlayerManager {
             INSTANCE = new PlayerManager();
         }
         return INSTANCE;
+    }
+
+    private boolean validateQueueSize(int newTotalTracks, Message message) {
+        if (this.maxQueueSize < newTotalTracks + 1) {
+            // Reply: Max Queue Size
+            message.replyEmbeds(Helper.generateSimpleEmbed(String.format("I can no longer add any more tracks as the max queue size of **%d** has been reached.", maxQueueSize), "").build()).queue();
+            return false;
+        }
+        return true;
     }
 }
