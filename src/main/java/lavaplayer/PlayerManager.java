@@ -1,9 +1,12 @@
 package lavaplayer;
 
+import com.github.topislavalinkplugins.topissourcemanagers.spotify.SpotifyConfig;
+import com.github.topislavalinkplugins.topissourcemanagers.spotify.SpotifySourceManager;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -26,6 +29,16 @@ public class PlayerManager {
     public PlayerManager() {
         this.musicManager = new HashMap<>();
         this.audioPlayerManager = new DefaultAudioPlayerManager();
+
+        // Spotify
+        SpotifyConfig spotifyConfig = new SpotifyConfig();
+        spotifyConfig.setClientId(Config.get("SPOTIFY_CLIENT_ID"));
+        spotifyConfig.setClientSecret(Config.get("SPOTIFY_CLIENT_SECRET"));
+        spotifyConfig.setCountryCode("US");
+        this.audioPlayerManager.registerSourceManager(new SpotifySourceManager(null, spotifyConfig, this.audioPlayerManager));
+
+        // SoundCloud
+        this.audioPlayerManager.registerSourceManager(SoundCloudAudioSourceManager.createDefault());
 
         AudioSourceManagers.registerRemoteSources(this.audioPlayerManager);
         AudioSourceManagers.registerLocalSource(this.audioPlayerManager);

@@ -3,7 +3,6 @@ package commands.text.general;
 import commands.text.TextCommand;
 import commands.text.TextCommandContext;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +14,7 @@ public class InfoCommand implements TextCommand {
     public InfoCommand() {
         this.name = "info";
         this.aliases = new ArrayList<>();
+        this.aliases.add("about");
     }
 
     @Override
